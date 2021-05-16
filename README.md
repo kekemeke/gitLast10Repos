@@ -1,3 +1,48 @@
+Тестовое задание на получение 10 последних апдейтнух репозиториев у заданного списка юзеров.
+
+Запуск через докер.
+------------------
+
+Install the application dependencies
+
+    docker-compose run --rm backend composer install
+
+Initialize the application by running the `init` command within a container
+
+    docker-compose run --rm backend php /app/init
+
+Adjust the components['db'] configuration in `common/config/main-local.php` accordingly.
+    
+        'dsn' => 'mysql:host=mysql;dbname=yii2advanced',
+        'username' => 'yii2advanced',
+        'password' => 'secret',
+
+> Docker networking creates a DNS entry for the host `mysql` available from your `backend` and `frontend` containers.
+
+> If you want to use another database, such a Postgres, uncomment the corresponding section in `docker-compose.yml` and update your database connection.
+
+>         'dsn' => 'pgsql:host=pgsql;dbname=yii2advanced',
+
+For more information about Docker setup please visit the [guide](http://www.yiiframework.com/doc-2.0/guide-index.html).
+
+Start the application
+
+    docker-compose up -d
+
+Run the migrations
+
+    docker-compose run --rm backend yii migrate          
+
+Access it in your browser by opening
+
+- Список пользователей(там же кнопка для создания и удаления): http://127.0.0.1:20080/git-user
+- Список обусловенных репозиториев: http://127.0.0.1:20080/git-users-repo
+
+Для ручного обновления списка
+
+    docker-compose run --rm backend yii git-users-repo
+
+
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
