@@ -36,8 +36,6 @@ services:
       ofelia.enabled: "true"
       ofelia.job-exec.datecron.schedule: "@every 10m"
       ofelia.job-exec.datecron.command: "yii git-users-repo"
-    depends_on:
-      - mysql
 #    command: php yii migrate --interactive=0
 
   mysql:

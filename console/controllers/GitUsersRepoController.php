@@ -53,16 +53,14 @@ class GitUsersRepoController extends Controller
         $slicedRepos = array_slice($repos, 0, 10);
 
         echo "Update GitUsersRepo table\n";
+
         GitUsersRepo::deleteAll();
+        \Yii::$app->db->createCommand()->batchInsert(
+            GitUsersRepo::tableName(),
+            ['username', 'link', 'updated_at'],
+            $slicedRepos
+        )->execute();
 
-        foreach($slicedRepos as $updatedRepo) {
-            $repo = new GitUsersRepo();
-            $repo->username = $updatedRepo['username'];
-            $repo->link = $updatedRepo['link'];
-            $repo->updated_at = $updatedRepo['updated_at'];
-
-            $repo->save();
-        }
         echo "Git user repos updated, see you!\n";
         die();
     }
