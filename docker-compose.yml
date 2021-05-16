@@ -1,0 +1,61 @@
+version: '3.2'
+
+services:
+  ofelia:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - backend
+    command: daemon --docker
+    volumes:
+#      - ./docker/ofelia.config.ini:/etc/ofelia/config.ini
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./logs:/tmp/logs
+
+  frontend:
+    build: frontend
+    ports:
+      - 20080:80
+    volumes:
+      # Re-use local composer cache via host-volume
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      # Mount source-code for development
+      - ./:/app
+    depends_on:
+      - mysql
+
+  backend:
+    build: backend
+    ports:
+      - 21080:80
+    volumes:
+      # Re-use local composer cache via host-volume
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      # Mount source-code for development
+      - ./:/app
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.datecron.schedule: "@every 10m"
+      ofelia.job-exec.datecron.command: "yii git-users-repo"
+    depends_on:
+      - mysql
+#    command: php yii migrate --interactive=0
+
+  mysql:
+    image: mysql:5.7
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=verysecret
+      - MYSQL_DATABASE=yii2advanced
+      - MYSQL_USER=yii2advanced
+      - MYSQL_PASSWORD=secret
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '3066:80'
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
