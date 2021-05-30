@@ -10,6 +10,11 @@ use yii\httpclient\Client;
 
 class GitUsersRepoController extends Controller
 {
+    /**
+     * @throws \yii\httpclient\Exception
+     * @throws \yii\db\Exception
+     * @throws \Throwable
+     */
     public function actionIndex(): void
     {
         $gitHubApiUrl = 'https://api.github.com/users/';
@@ -55,11 +60,20 @@ class GitUsersRepoController extends Controller
         echo "Update GitUsersRepo table\n";
 
         GitUsersRepo::deleteAll();
-        \Yii::$app->db->createCommand()->batchInsert(
-            GitUsersRepo::tableName(),
-            ['username', 'link', 'updated_at'],
-            $slicedRepos
-        )->execute();
+        $transaction = \Yii::$app->getDb()->beginTransaction();
+        try {
+            \Yii::$app->db->createCommand()->batchInsert(
+                GitUsersRepo::tableName(),
+                ['username', 'link', 'updated_at'],
+                $slicedRepos
+            )->execute();
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            echo "RollBack\n";
+            throw $e;
+        }
 
         echo "Git user repos updated, see you!\n";
         die();

@@ -27,6 +27,8 @@ class m210516_090719_addGitUsersRepoTop10List extends Migration
             'updated_at' => $this->string()->notNull(),
             'updated_by_cron' => $this->dateTime()->defaultValue(new \yii\db\Expression('NOW()'))
         ], $tableOptions);
+
+        $this->createIndex('IDX-gitUsersRepo-updated_at', $this->table, 'updated_at');
     }
 
     /**
@@ -34,6 +36,7 @@ class m210516_090719_addGitUsersRepoTop10List extends Migration
      */
     public function down()
     {
+        $this->dropIndex('IDX-gitUsersRepo-updated_at', $this->table);
         $this->dropTable($this->table);
     }
 }
